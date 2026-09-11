@@ -186,6 +186,8 @@ node src/server.js                    # probar la app de ese momento
 git switch main                       # volver al presente
 ```
 
+Guía completa del viaje etapa por etapa (con comandos verificados en cada tag): [`docs/ETAPAS.md`](docs/ETAPAS.md).
+
 ## Problemas frecuentes
 
 | Síntoma | Causa | Solución |
