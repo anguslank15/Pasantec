@@ -61,7 +61,15 @@ Esto lee `package.json` y descarga Express y better-sqlite3 en `node_modules/`. 
 node src/server.js
 ```
 
-En el primer arranque se crean automáticamente el archivo `mi_base_de_datos.db` y la tabla `productos`. Verás:
+En el primer arranque se crean automáticamente el archivo `mi_base_de_datos.db` y la tabla `productos`. Si es una **instalación limpia** (el archivo de la base no existía), antes de ese mensaje el servidor pregunta:
+
+```
+No encontré la base de datos. ¿Poblarla con datos de ejemplo (poblar_base.sql)? [s/N]
+```
+
+Respondé `s` para cargar los 5 productos de ejemplo; cualquier otra respuesta (o solo Enter) crea la base vacía.
+
+Verás:
 
 ```
 Servidor corriendo en http://localhost:3000
@@ -74,6 +82,8 @@ Dejá esta terminal abierta: mientras corre, el servidor atiende pedidos. Para d
 Navegador en <http://localhost:3000/> — cargá un producto con el formulario y debería aparecer en la tabla.
 
 ## Poblar la base con datos de ejemplo
+
+**La forma más fácil:** en el primer arranque con la base sin crear, respondé `s` a la pregunta del servidor (ver paso 4) — es este mismo paso, sin comandos. Las opciones A y B de abajo quedan para cuando la base ya existe y querés poblarla (o repoblarla) a mano.
 
 **Precondición:** haber levantado el servidor al menos una vez (paso 4), porque la tabla la crea `src/server.js` al arrancar.
 
@@ -152,6 +162,9 @@ El proyecto se construyó por etapas; cada una es un commit con su tag de git:
 | 3 | `etapa-3-delete` | Borrar: `DELETE /:id` + botón Borrar con confirmación |
 | 4 | `etapa-4-update` | Editar: `PUT /:id` + modo edición del formulario |
 | 5 | `etapa-5-validacion` | Validación en el servidor (`400`) + `201` en POST |
+| 6 | `etapa-6-rename` | Frontend renombrado a `public/index.html`, servido en la raíz (`/`) |
+| 7 | `etapa-7-src-tests` | Refactor a `src/` modular + tests automatizados (`npm test`) |
+| 8 | `etapa-8-poblar` | Instalación limpia: pregunta si poblar la base con `poblar_base.sql` |
 
 Para ver el proyecto tal como estaba en una etapa (solo lectura y pruebas):
 

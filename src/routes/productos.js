@@ -9,7 +9,10 @@
 // ============================================================
 
 const express = require("express");
-const db = require("../db"); // conexión SQLite compartida (misma instancia en toda la app)
+// Conexión SQLite compartida (misma instancia en toda la app).
+// Se DESTRUCTURA porque db.js exporta un objeto { db, poblarDesdeArchivo }:
+// acá solo se necesita la conexión; el seed lo usa src/server.js.
+const { db } = require("../db");
 const { validarProducto } = require("../validators/productos");
 
 const router = express.Router();

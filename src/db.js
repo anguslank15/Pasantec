@@ -6,6 +6,7 @@
 // La base completa vive en un solo archivo .db en el disco.
 // ============================================================
 
+const fs = require("fs"); // builtin de Node: para leer el archivo poblar_base.sql (sin instalar nada)
 const Database = require("better-sqlite3");
 
 // La ruta del archivo de base se puede cambiar con la variable de
@@ -29,6 +30,32 @@ db.exec(`
   )
     `);
 
-// Se exporta la conexión ya abierta y con la tabla asegurada: las
-// rutas (routes/productos.js) la requieren para leer y escribir.
-module.exports = db;
+// ============================================================
+// poblarDesdeArchivo(rutaSql) — cargar datos de ejemplo (seed)
+//
+// ¿Por qué existe? Para la instalación limpia: si arrancás el
+// servidor y la base no existía, src/server.js te pregunta si
+// querés poblarla. Esta función lee un archivo .sql completo
+// (utf8) y lo ejecuta de una sola vez con db.exec(), que acepta
+// VARIAS sentencias seguidas: los 5 INSERT de poblar_base.sql y
+// su SELECT final de verificación.
+//
+// ⚠ MISMA ADVERTENCIA que adentro de poblar_base.sql: la tabla
+// productos NO tiene restricción UNIQUE, así que ejecutar el
+// script DOS VECES inserta los productos duplicados. Esta función
+// no verifica nada de eso: confía en que quien la llama la use
+// una sola vez (en la práctica, solo cuando la base era nueva).
+// ============================================================
+function poblarDesdeArchivo(rutaSql) {
+  const sql = fs.readFileSync(rutaSql, "utf8"); // se lee TODO el archivo a un string
+  db.exec(sql); // y se ejecuta entero de una (exec sí soporta múltiples sentencias)
+}
+
+// Se exporta un OBJETO con dos cosas:
+//  - db: la conexión ya abierta y con la tabla asegurada; las rutas
+//    (routes/productos.js) la destructuran al requerir este módulo.
+//  - poblarDesdeArchivo: la función de seed de arriba; la usa
+//    src/server.js solo cuando la base se crea por primera vez.
+// Ojo al cambio de forma: antes se exportaba `db` directamente, y
+// quien requiera ../db ahora recibe { db, poblarDesdeArchivo }.
+module.exports = { db, poblarDesdeArchivo };

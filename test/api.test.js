@@ -29,8 +29,9 @@ const request = require("supertest");
 const app = require("../src/app");
 // Misma instancia de la base que usa la app: CommonJS cachea los
 // require, así que ../src/db acá y dentro de las rutas es el mismo
-// objeto. La necesitamos para cerrar la conexión al final.
-const db = require("../src/db");
+// objeto. La necesitamos para cerrar la conexión al final. Se
+// DESTRUCTURA porque db.js exporta { db, poblarDesdeArchivo }.
+const { db } = require("../src/db");
 
 // Al terminar TODOS los tests se cierra la conexión y se borra la
 // base temporal. En Windows no se puede borrar un archivo abierto:
