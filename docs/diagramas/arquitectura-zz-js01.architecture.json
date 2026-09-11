@@ -7,7 +7,7 @@
     "repository": {
       "url": "https://github.com/joriza/Ej-Express-01",
       "provider": "github",
-      "revision": "2cc3e83ec5cfbda7e078df05716cca47f739e03d"
+      "revision": "f8d2164500280dc8759abc7a4db2fee712270a7e"
     },
     "quality_profile": "showcase",
     "views": [
@@ -30,11 +30,11 @@
       "id": "browser",
       "type": "frontend",
       "label": "Navegador",
-      "sublabel": "cargaDatos.html",
+      "sublabel": "index.html",
       "tag": "JS vanilla + fetch",
       "pos": [40, 300],
       "size": [130, 64],
-      "sources": [{ "path": "public/cargaDatos.html", "label": "formulario + tabla" }]
+      "sources": [{ "path": "public/index.html", "label": "formulario + tabla" }]
     },
     {
       "id": "express",
