@@ -7,7 +7,7 @@
     "repository": {
       "url": "https://github.com/joriza/Ej-Express-01",
       "provider": "github",
-      "revision": "f8d2164500280dc8759abc7a4db2fee712270a7e"
+      "revision": "697b461363bc8b710a1c749604dd9e392ad30d95"
     },
     "quality_profile": "showcase",
     "views": [
@@ -40,11 +40,11 @@
       "id": "express",
       "type": "backend",
       "label": "Express 5",
-      "sublabel": "server.js",
+      "sublabel": "src/app.js",
       "tag": "json + static",
       "pos": [250, 300],
       "size": [130, 64],
-      "sources": [{ "path": "server.js", "label": "app + middlewares" }]
+      "sources": [{ "path": "src/app.js", "label": "app + middlewares" }]
     },
     {
       "id": "api",
