@@ -162,6 +162,8 @@ Las pruebas usan una **base temporal** (variable de entorno `DB_PATH` apuntando 
 npm test
 ```
 
+Guía completa: cómo están construidos y cómo extenderlos en [`docs/PRUEBAS.md`](docs/PRUEBAS.md).
+
 ## Etapas del proyecto (para quien lo continúe)
 
 El proyecto se construyó por etapas; cada una es un commit con su tag de git:
