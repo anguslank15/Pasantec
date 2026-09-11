@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "CRUD de productos — zz-js01",
+    "output": "docs/arquitectura-zz-js01.html",
+    "repository": {
+      "url": "https://github.com/joriza/Ej-Express-01",
+      "provider": "github",
+      "revision": "927e5773a83483a353d5f06e44b450de810faaed"
+    },
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "ruta-datos",
+        "label": "Ruta de datos",
+        "focus": ["browser", "express", "api", "driver", "db"],
+        "note": "El POST del formulario viaja por HTTP hasta la tabla productos en SQLite."
+      },
+      {
+        "id": "servido-estatico",
+        "label": "Servido estático",
+        "focus": ["express", "browser"],
+        "note": "express.static entrega cargaDatos.html desde public/ al navegador."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "Navegador",
+      "sublabel": "cargaDatos.html",
+      "tag": "JS vanilla + fetch",
+      "pos": [40, 300],
+      "size": [130, 64],
+      "sources": [{ "path": "public/cargaDatos.html", "label": "formulario + tabla" }]
+    },
+    {
+      "id": "express",
+      "type": "backend",
+      "label": "Express 5",
+      "sublabel": "server.js",
+      "tag": "json + static",
+      "pos": [250, 300],
+      "size": [130, 64],
+      "sources": [{ "path": "server.js", "label": "app + middlewares" }]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Rutas API",
+      "sublabel": "/api/productos",
+      "tag": "GET · POST",
+      "pos": [460, 300],
+      "size": [130, 64]
+    },
+    {
+      "id": "driver",
+      "type": "backend",
+      "label": "better-sqlite3",
+      "sublabel": "driver síncrono",
+      "tag": "prepare + run",
+      "pos": [670, 300],
+      "size": [130, 64]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "SQLite",
+      "sublabel": "mi_base_de_datos.db",
+      "tag": "tabla productos",
+      "pos": [880, 300],
+      "size": [130, 64]
+    }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Servidor local (server.js)", "wraps": ["express", "api", "driver", "db"] }
+  ],
+  "connections": [
+    { "id": "http", "from": "browser", "to": "express", "label": "HTTP :3000", "variant": "emphasis" },
+    {
+      "id": "estatico",
+      "from": "express",
+      "to": "browser",
+      "label": "sirve HTML estático",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    },
+    { "id": "enruta", "from": "express", "to": "api", "label": "JSON parseado" },
+    { "id": "sql", "from": "api", "to": "driver", "label": "SQL preparado" },
+    { "id": "persiste", "from": "driver", "to": "db", "label": "INSERT · SELECT" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Frontend",
+      "items": [
+        "Formulario y tabla en HTML vanilla, sin frameworks",
+        "fetch() con rutas relativas /api/..., servido por Express"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Backend",
+      "items": [
+        "Express 5 en cadena de middlewares: express.json + express.static",
+        "GET y POST sobre /api/productos"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Persistencia",
+      "items": [
+        "better-sqlite3 síncrono: cada consulta bloquea hasta terminar",
+        "SQLite en un único archivo: mi_base_de_datos.db"
+      ]
+    }
+  ]
+}
