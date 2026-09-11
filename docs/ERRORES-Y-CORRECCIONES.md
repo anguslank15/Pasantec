@@ -2,6 +2,8 @@
 
 Registro de los dos errores que impedían grabar productos en la base de datos, cómo se corrigieron y por qué funcionaban así. Pensado para releer y afianzar los conceptos de depuración web (navegador → servidor → base de datos).
 
+> **Nota:** desde la etapa 6 el frontend se llama `public/index.html` y se sirve en la raíz (`/`). Este documento conserva los nombres originales porque narra bugs históricos.
+
 ## Resumen rápido
 
 | # | Error | Causa raíz | Corrección |

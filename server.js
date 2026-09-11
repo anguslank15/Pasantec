@@ -35,7 +35,7 @@ app.use(express.json());
 
 // Middleware de archivos estáticos: si un pedido no matchea ninguna
 // ruta de la API, Express busca un archivo con ese nombre dentro de
-// public/ y lo sirve tal cual (así se entrega /cargaDatos.html).
+// public/ y lo sirve tal cual (GET / sirve index.html automáticamente).
 // Se apunta a public/ —y no a la raíz del proyecto— para no exponer
 // por HTTP la base de datos, este server.js ni el package.json.
 // __dirname = ruta absoluta de la carpeta donde está este archivo.

@@ -18,7 +18,7 @@ Documentación complementaria: [`docs/ERRORES-Y-CORRECCIONES.md`](docs/ERRORES-Y
 
 1. `npm install`
 2. `node server.js`
-3. Abrir <http://localhost:3000/cargaDatos.html>
+3. Abrir <http://localhost:3000/>
 
 ## Instalación desde cero en un equipo nuevo
 
@@ -71,7 +71,7 @@ Dejá esta terminal abierta: mientras corre, el servidor atiende pedidos. Para d
 
 ### 5. Abrir la aplicación
 
-Navegador en <http://localhost:3000/cargaDatos.html> — cargá un producto con el formulario y debería aparecer en la tabla.
+Navegador en <http://localhost:3000/> — cargá un producto con el formulario y debería aparecer en la tabla.
 
 ## Poblar la base con datos de ejemplo
 
@@ -98,7 +98,7 @@ sqlite3 mi_base_de_datos.db ".read poblar_base.sql"
 | Archivo / carpeta | Qué es |
 | ------------------- | -------- |
 | `server.js` | Backend: Express, rutas de la API y conexión SQLite. Comentario a comentario está pensado para leerse de arriba a abajo. |
-| `public/cargaDatos.html` | Frontend: formulario + tabla, con `fetch()` al backend. También comentado para aprender. |
+| `public/index.html` | Frontend: CRUD completo (formulario + tabla) servido automáticamente en la raíz por `express.static`. Comentado para aprender. |
 | `poblar_base.sql` | Datos de ejemplo para llenar la base. |
 | `package.json` / `package-lock.json` | Dependencias del proyecto (qué instala `npm install`). |
 | `mi_base_de_datos.db` | La base SQLite. **No se versiona** (`.gitignore`); se crea al arrancar. |
@@ -108,7 +108,7 @@ sqlite3 mi_base_de_datos.db ".read poblar_base.sql"
 ## API
 
 | Método y ruta | Qué hace | Body (JSON) | Respuestas |
-|---------------|----------|-------------|------------|
+| --------------- | ---------- | ------------- | ------------ |
 | `GET /api/productos` | Lista todos los productos | — | `200` |
 | `POST /api/productos` | Crea un producto | `{ "nombre": "string", "precio": número }` | `201` · `400` si los datos no cumplen las reglas |
 | `PUT /api/productos/:id` | Reemplaza un producto existente | ídem | `200` · `400` datos inválidos · `404` id inexistente |
@@ -145,7 +145,7 @@ curl -X DELETE http://localhost:3000/api/productos/1                        # bo
 El proyecto se construyó por etapas; cada una es un commit con su tag de git:
 
 | Etapa | Tag | Qué agregó |
-|-------|-----|------------|
+| ------- | ----- | ------------ |
 | 1-2 | — | Crear y listar (CR), con los bugs iniciales documentados en [`docs/ERRORES-Y-CORRECCIONES.md`](docs/ERRORES-Y-CORRECCIONES.md) |
 | 3 | `etapa-3-delete` | Borrar: `DELETE /:id` + botón Borrar con confirmación |
 | 4 | `etapa-4-update` | Editar: `PUT /:id` + modo edición del formulario |
@@ -164,7 +164,7 @@ git switch main                       # volver al presente
 | Síntoma | Causa | Solución |
 | --------- | ------- | ---------- |
 | `EADDRINUSE` / puerto 3000 ocupado | Ya hay otro proceso en ese puerto (probablemente otra instancia del server) | Detener la otra instancia, o usar otro puerto: `PORT=3100 node server.js` |
-| `Cannot GET /cargaDatos.html` | El servidor no tiene montado `express.static` (versión vieja del código) o entraste por un puerto distinto al que escucha | Confirmar el puerto del mensaje de arranque y la versión de `server.js` |
+| `Cannot GET /` | El servidor no tiene montado `express.static` (versión vieja del código) o entraste por un puerto distinto al que escucha | Confirmar el puerto del mensaje de arranque y la versión de `server.js` |
 | `npm install` falla compilando better-sqlite3 | Node viejo o faltan herramientas de compilación | Verificar `node -v` ≥ 22; en Windows reinstalar con el instalador oficial LTS |
 | Guardo y no aparece nada | El frontend no llega al servidor: revisar consola del navegador (F12) y pestaña Network | Ver [`docs/ERRORES-Y-CORRECCIONES.md`](docs/ERRORES-Y-CORRECCIONES.md) |
-| Abrí el HTML como archivo (`file://`) | Las rutas `/api/...` no resuelven sin servidor | Entrar siempre por `http://localhost:3000/cargaDatos.html` |
+| Abrí el HTML como archivo (`file://`) | Las rutas `/api/...` no resuelven sin servidor | Entrar siempre por `http://localhost:3000/` |

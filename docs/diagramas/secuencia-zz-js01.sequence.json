@@ -24,7 +24,7 @@
   },
   "participants": [
     { "id": "usuario", "type": "external", "label": "Usuario", "sublabel": "completa el formulario" },
-    { "id": "pagina", "type": "frontend", "label": "cargaDatos.html", "sublabel": "JS vanilla + fetch" },
+    { "id": "pagina", "type": "frontend", "label": "index.html", "sublabel": "JS vanilla + fetch" },
     { "id": "express", "type": "backend", "label": "Express 5", "sublabel": "server.js · rutas /api" },
     { "id": "driver", "type": "backend", "label": "better-sqlite3", "sublabel": "driver síncrono" },
     { "id": "db", "type": "database", "label": "SQLite", "sublabel": "mi_base_de_datos.db" }
