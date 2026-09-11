@@ -21,7 +21,7 @@
 <h2>Productos guardados</h2>
 <table>
   <thead>
-    <tr><th>ID</th><th>Nombre</th><th>Precio</th></tr>
+    <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Acción</th></tr>
   </thead>
   <!-- este tbody se llena dinámicamente desde JavaScript -->
   <tbody id="lista-productos"></tbody>
@@ -95,7 +95,31 @@
     }
   }
 
-  // Trae todos los productos (GET) y redibuja la tabla completa.
+      // Borra un producto vía DELETE. El id viaja en la URL (parámetro
+      // de ruta), igual que en el backend: /api/productos/7.
+      async function borrarProducto(id) {
+        // confirm() muestra un diálogo nativo del navegador y devuelve
+        // true/false según lo que responda el usuario. Es la barrera mínima
+        // contra un clic accidental sobre "Borrar".
+        if (!confirm(`¿Borrar el producto #${id}?`)) return;
+        try {
+          const respuesta = await fetch(`/api/productos/${id}`, {
+            method: 'DELETE'
+          });
+          // Igual que en guardarProducto: fetch no lanza excepción ante
+          // 404/500; hay que revisar respuesta.ok a mano.
+          if (!respuesta.ok) {
+            console.error('El servidor rechazó el borrado:', respuesta.status);
+            return;
+          }
+          // Mismo patrón del ciclo POST → GET: mutación y después refresco.
+          await cargarProductos();
+        } catch (error) {
+          console.error('No se pudo contactar al servidor:', error);
+        }
+      }
+
+      // Trae todos los productos (GET) y redibuja la tabla completa.
   // Enfoque simple y suficiente para esta cantidad de datos.
   async function cargarProductos() {
     const respuesta = await fetch('/api/productos'); // GET es el default
@@ -116,6 +140,17 @@
         celda.textContent = valor;
         fila.appendChild(celda);
       }
+      // Columna de acción: un botón "Borrar" por fila. También se arma
+      // con createElement + textContent: el id numérico no es peligroso,
+      // pero el hábito de no concatenar HTML con datos sí lo es.
+      const celdaAccion = document.createElement('td');
+      const botonBorrar = document.createElement('button');
+      botonBorrar.textContent = 'Borrar';
+      // La arrow function hace de "clausura": guarda el producto.id de
+      // ESTA fila y solo se ejecuta cuando se hace clic en ese botón.
+      botonBorrar.addEventListener('click', () => borrarProducto(producto.id));
+      celdaAccion.appendChild(botonBorrar);
+      fila.appendChild(celdaAccion);
       tbody.appendChild(fila);
     }
   }

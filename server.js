@@ -75,7 +75,27 @@ app.post("/api/productos", (req, res) => {
   const resultado = insert.run(nombre, precio);
   res.json({ id: resultado.lastInsertRowid, nombre, precio });
 });
-
+    
+// DELETE /api/productos/:id → borra el producto con ese id.
+// ":id" es un PARÁMETRO DE RUTA: viaja en la URL (no en el body) y
+// Express lo deja disponible en req.params.id. Ojo: llega como STRING
+// ("7"), pero SQLite lo compara bien contra el id numérico.
+app.delete("/api/productos/:id", (req, res) => {
+  const borrar = db.prepare("DELETE FROM productos WHERE id = ?");
+  // run() devuelve "changes": cuántas filas fueron borradas de verdad.
+  const resultado = borrar.run(req.params.id);
+  // Si changes es 0, no existía ningún producto con ese id. Responder
+  // 404 (Not Found) es más honesto que un 204 silencioso: quien llamó
+  // pidió borrar algo que no estaba.
+  if (resultado.changes === 0) {
+return res.status(404).json({ error: "Producto no encontrado" });
+  }
+  // 204 No Content: "salió bien y no tengo nada que devolver". Es la
+  // convención REST para borrados exitosos. .end() cierra la respuesta
+  // sin body.
+  res.status(204).end();
+});
+    
 // Levanta el servidor y queda escuchando pedidos.
 // process.env.PORT permite cambiar el puerto desde la terminal sin
 // tocar el código:  PORT=3100 node server.js
