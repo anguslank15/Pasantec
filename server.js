@@ -76,6 +76,27 @@ app.post("/api/productos", (req, res) => {
   res.json({ id: resultado.lastInsertRowid, nombre, precio });
 });
     
+// PUT /api/productos/:id → reemplaza los datos del producto con ese id.
+// En REST, PUT significa "actualizar el recurso completo" (PATCH sería
+// actualizar una parte). Usa el mismo parámetro de ruta que DELETE.
+app.put("/api/productos/:id", (req, res) => {
+  const { nombre, precio } = req.body; // los nuevos valores vienen en el body
+  // UPDATE ... WHERE id = ?: cambia SOLO las filas que matcheen el id.
+  // Sin WHERE se actualizarían TODAS las filas: error clásico y caro.
+  const actualizar = db.prepare(
+"UPDATE productos SET nombre = ?, precio = ? WHERE id = ?",
+  );
+  // Tres valores, tres "?": en el mismo orden que aparecen en el SQL.
+  const resultado = actualizar.run(nombre, precio, req.params.id);
+  // Mismo patrón changes que en DELETE: 0 significa "ese id no existe".
+  if (resultado.changes === 0) {
+return res.status(404).json({ error: "Producto no encontrado" });
+  }
+  // Devolvemos cómo quedó el producto. Number(): req.params.id es string,
+  // lo convertimos para que el JSON muestre el id como número.
+  res.json({ id: Number(req.params.id), nombre, precio });
+});
+    
 // DELETE /api/productos/:id → borra el producto con ese id.
 // ":id" es un PARÁMETRO DE RUTA: viaja en la URL (no en el body) y
 // Express lo deja disponible en req.params.id. Ojo: llega como STRING
@@ -88,14 +109,14 @@ app.delete("/api/productos/:id", (req, res) => {
   // 404 (Not Found) es más honesto que un 204 silencioso: quien llamó
   // pidió borrar algo que no estaba.
   if (resultado.changes === 0) {
-return res.status(404).json({ error: "Producto no encontrado" });
+    return res.status(404).json({ error: "Producto no encontrado" });
   }
   // 204 No Content: "salió bien y no tengo nada que devolver". Es la
   // convención REST para borrados exitosos. .end() cierra la respuesta
   // sin body.
   res.status(204).end();
 });
-    
+
 // Levanta el servidor y queda escuchando pedidos.
 // process.env.PORT permite cambiar el puerto desde la terminal sin
 // tocar el código:  PORT=3100 node server.js
