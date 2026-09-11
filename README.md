@@ -3,7 +3,7 @@
 Mini aplicación web de aprendizaje: un **CRUD completo** de productos — formulario para **crear y editar**, tabla que **lista** y **borra** — con backend Node.js + Express y base de datos SQLite en un solo archivo.
 
 ```
-[ Navegador ]  --HTTP-->  [ Express (server.js) ]  --SQL-->  [ SQLite (mi_base_de_datos.db) ]
+[ Navegador ]  --HTTP-->  [ Express (src/server.js) ]  --SQL-->  [ SQLite (mi_base_de_datos.db) ]
    public/            /api/productos (GET·POST·PUT·DELETE)      archivo en disco
 ```
 
@@ -17,7 +17,7 @@ Documentación complementaria: [`docs/ERRORES-Y-CORRECCIONES.md`](docs/ERRORES-Y
 ## Camino rápido (si ya tenés Node)
 
 1. `npm install`
-2. `node server.js`
+2. `node src/server.js`
 3. Abrir <http://localhost:3000/>
 
 ## Instalación desde cero en un equipo nuevo
@@ -58,7 +58,7 @@ Esto lee `package.json` y descarga Express y better-sqlite3 en `node_modules/`. 
 ### 4. Levantar el servidor
 
 ```bash
-node server.js
+node src/server.js
 ```
 
 En el primer arranque se crean automáticamente el archivo `mi_base_de_datos.db` y la tabla `productos`. Verás:
@@ -75,7 +75,7 @@ Navegador en <http://localhost:3000/> — cargá un producto con el formulario y
 
 ## Poblar la base con datos de ejemplo
 
-**Precondición:** haber levantado el servidor al menos una vez (paso 4), porque la tabla la crea `server.js` al arrancar.
+**Precondición:** haber levantado el servidor al menos una vez (paso 4), porque la tabla la crea `src/server.js` al arrancar.
 
 Opción A — con Node (ya lo tenés por el paso 1; usar **PowerShell o Git Bash** en Windows):
 
@@ -97,7 +97,8 @@ sqlite3 mi_base_de_datos.db ".read poblar_base.sql"
 
 | Archivo / carpeta | Qué es |
 | ------------------- | -------- |
-| `server.js` | Backend: Express, rutas de la API y conexión SQLite. Comentario a comentario está pensado para leerse de arriba a abajo. |
+| `src/` | Backend modular: `app.js` (app Express + mapa de la API), `server.js` (arranque), `db.js` (conexión SQLite), `routes/productos.js` (rutas) y `validators/productos.js` (validación). Comentario a comentario, pensado para leerse de arriba a abajo. |
+| `test/` | Pruebas automatizadas de la API (`node:test` + supertest): corren con `npm test` y usan una base temporal, nunca la real. |
 | `public/index.html` | Frontend: CRUD completo (formulario + tabla) servido automáticamente en la raíz por `express.static`. Comentado para aprender. |
 | `poblar_base.sql` | Datos de ejemplo para llenar la base. |
 | `package.json` / `package-lock.json` | Dependencias del proyecto (qué instala `npm install`). |
@@ -130,8 +131,9 @@ El ciclo de vida completo de un producto (estados, verbor HTTP y códigos de res
 ## Comandos útiles
 
 ```bash
-node server.js                 # servidor en el puerto 3000
-PORT=3100 node server.js       # mismo servidor en otro puerto
+npm test                       # corre las pruebas de la API (node --test)
+node src/server.js             # servidor en el puerto 3000
+PORT=3100 node src/server.js   # mismo servidor en otro puerto
 
 # Pruebas manuales de la API (Git Bash / PowerShell)
 curl http://localhost:3000/api/productos                                   # listar
@@ -155,7 +157,7 @@ Para ver el proyecto tal como estaba en una etapa (solo lectura y pruebas):
 
 ```bash
 git switch --detach etapa-3-delete   # viajar a esa etapa
-node server.js                        # probar la app de ese momento
+node src/server.js                    # probar la app de ese momento
 git switch main                       # volver al presente
 ```
 
@@ -163,8 +165,8 @@ git switch main                       # volver al presente
 
 | Síntoma | Causa | Solución |
 | --------- | ------- | ---------- |
-| `EADDRINUSE` / puerto 3000 ocupado | Ya hay otro proceso en ese puerto (probablemente otra instancia del server) | Detener la otra instancia, o usar otro puerto: `PORT=3100 node server.js` |
-| `Cannot GET /` | El servidor no tiene montado `express.static` (versión vieja del código) o entraste por un puerto distinto al que escucha | Confirmar el puerto del mensaje de arranque y la versión de `server.js` |
+| `EADDRINUSE` / puerto 3000 ocupado | Ya hay otro proceso en ese puerto (probablemente otra instancia del server) | Detener la otra instancia, o usar otro puerto: `PORT=3100 node src/server.js` |
+| `Cannot GET /` | El servidor no tiene montado `express.static` (versión vieja del código) o entraste por un puerto distinto al que escucha | Confirmar el puerto del mensaje de arranque y la versión de `src/server.js` |
 | `npm install` falla compilando better-sqlite3 | Node viejo o faltan herramientas de compilación | Verificar `node -v` ≥ 22; en Windows reinstalar con el instalador oficial LTS |
 | Guardo y no aparece nada | El frontend no llega al servidor: revisar consola del navegador (F12) y pestaña Network | Ver [`docs/ERRORES-Y-CORRECCIONES.md`](docs/ERRORES-Y-CORRECCIONES.md) |
 | Abrí el HTML como archivo (`file://`) | Las rutas `/api/...` no resuelven sin servidor | Entrar siempre por `http://localhost:3000/` |

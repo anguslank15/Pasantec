@@ -6,11 +6,13 @@
   "name": "zz-js01",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
-  "devDependencies": {},
+  "main": "src/server.js",
+  "devDependencies": {
+    "supertest": "^7.2.2"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "node --test \"test/**/*.test.js\"",
+    "start": "node src/server.js"
   },
   "keywords": [],
   "author": "",
