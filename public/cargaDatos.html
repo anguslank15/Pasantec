@@ -1,6 +1,20 @@
+<!-- ============================================================
+     cargaDatos.html — Frontend del CRUD (zz-js01)
+
+     Sin frameworks: HTML + CSS + JavaScript puro del navegador.
+     Se comunica con el backend únicamente por HTTP usando fetch(),
+     siempre con rutas relativas ("/api/..."), por eso este archivo
+     debe ser servido por Express desde public/ (entrando por
+     http://localhost:3000/cargaDatos.html) y NO abierto como
+     archivo local (file://...).
+     ============================================================ -->
+
 <form id="formulario-producto">
+  <!-- required: el navegador valida solo que no esté vacío -->
   <input type="text" id="nombre" placeholder="Nombre del producto" required>
+  <!-- step 0.01: admite decimales (precios con centavos) -->
   <input type="number" step="0.01" id="precio" placeholder="Precio" required>
+  <!-- type="submit": al presionarlo se dispara el evento "submit" del form -->
   <button type="submit">Guardar</button>
 </form>
 
@@ -9,6 +23,7 @@
   <thead>
     <tr><th>ID</th><th>Nombre</th><th>Precio</th></tr>
   </thead>
+  <!-- este tbody se llena dinámicamente desde JavaScript -->
   <tbody id="lista-productos"></tbody>
 </table>
 
@@ -20,36 +35,58 @@
 </style>
 
 <script>
+  // Referencias al DOM (la página). Se buscan una vez y se guardan
+  // en constantes: más legible y rápido que buscarlas en cada uso.
   const formulario = document.getElementById('formulario-producto');
   const tbody = document.getElementById('lista-productos');
 
+  // addEventListener: "cuando ocurra este evento, ejecutá esta función".
+  // async: habilita usar await dentro (JavaScript sigue acá mientras
+  // espera, sin congelar la página).
   formulario.addEventListener('submit', async (evento) => {
+    // preventDefault() cancela el comportamiento por defecto del
+    // submit (recargar la página). Sin esto, la recarga cortaría
+    // nuestro JavaScript antes de llegar a enviar el POST.
     evento.preventDefault();
 
+    // .value siempre devuelve texto; para el precio hace falta
+    // parseFloat() y así trabajar con un número de verdad.
     const nombre = document.getElementById('nombre').value;
     const precio = parseFloat(document.getElementById('precio').value);
 
+    // await: espera el resultado del POST antes de continuar.
+    // Si falla, guardado es false y el formulario NO se limpia:
+    // no se pierde lo escrito por un error del servidor.
     const guardado = await guardarProducto(nombre, precio);
     if (guardado) {
       formulario.reset();
-      // Ciclo POST -> GET: después de guardar, refresca la lista
+      // Ciclo POST -> GET: recién ahora que el producto está en la
+      // base, se pide la lista actualizada. El await garantiza ese
+      // orden (sin él, ambos correrían en paralelo).
       await cargarProductos();
     }
   });
 
-  // Envía el producto al backend vía POST; devuelve true si salió bien
+  // Envía el producto al backend vía POST. Devuelve true si salió bien.
+  // try/catch: si el servidor no responde (caído, red cortada), fetch
+  // lanza una excepción; la atrapamos para que la página no se rompa.
   async function guardarProducto(nombre, precio) {
     try {
       const respuesta = await fetch('/api/productos', {
         method: 'POST',
+        // El backend necesita saber que el body es JSON
         headers: { 'Content-Type': 'application/json' },
+        // fetch solo envía texto: el objeto debe serializarse
         body: JSON.stringify({ nombre, precio })
       });
+      // respuesta.ok significa código 2xx. OJO: fetch NO lanza
+      // excepción ante un 404/500; los códigos de error HTTP hay
+      // que revisarlos a mano, como acá.
       if (!respuesta.ok) {
         console.error('El servidor rechazó el guardado:', respuesta.status);
         return false;
       }
-      const datos = await respuesta.json();
+      const datos = await respuesta.json(); // { id, nombre, precio }
       console.log('Guardado con id:', datos.id);
       return true;
     } catch (error) {
@@ -58,24 +95,31 @@
     }
   }
 
-  // Trae los productos del backend vía GET y arma la tabla
+  // Trae todos los productos (GET) y redibuja la tabla completa.
+  // Enfoque simple y suficiente para esta cantidad de datos.
   async function cargarProductos() {
-    const respuesta = await fetch('/api/productos');
-    const productos = await respuesta.json();
+    const respuesta = await fetch('/api/productos'); // GET es el default
+    const productos = await respuesta.json(); // JSON -> array de objetos
 
+    // Vaciar y redibujar todo. Con muchos registros se optimizaría
+    // actualizando solo lo que cambió.
     tbody.innerHTML = '';
     for (const producto of productos) {
       const fila = document.createElement('tr');
+      // toFixed(2): formato monetario, siempre 2 decimales
       const valores = [producto.id, producto.nombre, `$ ${Number(producto.precio).toFixed(2)}`];
       for (const valor of valores) {
         const celda = document.createElement('td');
-        celda.textContent = valor; // textContent: nunca interpreta HTML
+        // textContent inserta TEXTO plano: nunca interpreta HTML.
+        // Usar innerHTML con datos del usuario permitiría XSS
+        // (un nombre "<script>..." se ejecutaría). Hacelo costumbre.
+        celda.textContent = valor;
         fila.appendChild(celda);
       }
       tbody.appendChild(fila);
     }
   }
 
-  // Carga inicial: mostrar lo que ya hay en la base al abrir la página
+  // Al abrir la página ya mostramos lo que hay en la base.
   cargarProductos();
 </script>
