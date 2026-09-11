@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Ciclo POST → GET — carga de un producto (zz-js01)",
+    "output": "docs/diagramas/secuencia-zz-js01.html",
+    "viewBox": [1080, 540],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "ciclo-guardado",
+        "label": "Ciclo de guardado",
+        "focus": ["usuario", "pagina", "express", "driver", "db"],
+        "note": "El POST viaja del formulario hasta la tabla productos y vuelve con el id generado."
+      },
+      {
+        "id": "recarga-lista",
+        "label": "Recarga de lista",
+        "focus": ["pagina", "express", "driver", "db"],
+        "note": "Con el producto ya persistido, el GET trae la lista completa y redibuja la tabla."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "usuario", "type": "external", "label": "Usuario", "sublabel": "completa el formulario" },
+    { "id": "pagina", "type": "frontend", "label": "cargaDatos.html", "sublabel": "JS vanilla + fetch" },
+    { "id": "express", "type": "backend", "label": "Express 5", "sublabel": "server.js · rutas /api" },
+    { "id": "driver", "type": "backend", "label": "better-sqlite3", "sublabel": "driver síncrono" },
+    { "id": "db", "type": "database", "label": "SQLite", "sublabel": "mi_base_de_datos.db" }
+  ],
+  "segments": [
+    { "from": 150, "to": 298, "label": "Guardar producto — POST" },
+    { "from": 306, "to": 446, "label": "Recargar lista — GET" }
+  ],
+  "messages": [
+    {
+      "id": "submit",
+      "from": "usuario",
+      "to": "pagina",
+      "y": 160,
+      "label": "submit «Guardar»",
+      "variant": "emphasis",
+      "note": "preventDefault() cancela la recarga de página"
+    },
+    {
+      "id": "post",
+      "from": "pagina",
+      "to": "express",
+      "y": 184,
+      "label": "POST /api/productos",
+      "variant": "emphasis",
+      "note": "JSON {nombre, precio} · express.json() lo parsea a req.body"
+    },
+    {
+      "id": "insert",
+      "from": "express",
+      "to": "driver",
+      "y": 208,
+      "label": "INSERT preparado (?, ?)",
+      "variant": "default",
+      "note": "parámetros separados del SQL: imposible inyección SQL"
+    },
+    { "id": "escribe", "from": "driver", "to": "db", "y": 232, "label": "escribe tabla productos" },
+    { "id": "rowid", "from": "driver", "to": "express", "y": 256, "label": "lastInsertRowid", "variant": "return" },
+    {
+      "id": "respuesta-post",
+      "from": "express",
+      "to": "pagina",
+      "y": 280,
+      "label": "200 · {id, nombre, precio}",
+      "variant": "return",
+      "note": "guardado ok → formulario.reset()"
+    },
+    {
+      "id": "get",
+      "from": "pagina",
+      "to": "express",
+      "y": 316,
+      "label": "GET /api/productos",
+      "variant": "emphasis",
+      "note": "ciclo POST → GET: primero persiste, después consulta"
+    },
+    { "id": "select", "from": "express", "to": "driver", "y": 340, "label": "SELECT * FROM productos" },
+    { "id": "lee", "from": "driver", "to": "db", "y": 364, "label": "lee tabla productos" },
+    { "id": "rows", "from": "driver", "to": "express", "y": 388, "label": "rows (array)", "variant": "return" },
+    { "id": "respuesta-get", "from": "express", "to": "pagina", "y": 412, "label": "200 · [productos]", "variant": "return" },
+    {
+      "id": "redibuja",
+      "from": "pagina",
+      "to": "usuario",
+      "y": 436,
+      "label": "tabla redibujada",
+      "variant": "return",
+      "note": "textContent inserta texto plano, nunca HTML (evita XSS)"
+    }
+  ],
+  "activations": [
+    { "participant": "pagina", "from": 160, "to": 442, "type": "frontend" },
+    { "participant": "express", "from": 184, "to": 420, "type": "backend" },
+    { "participant": "driver", "from": 205, "to": 394, "type": "backend" },
+    { "participant": "db", "from": 226, "to": 370, "type": "database" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "El ciclo POST → GET",
+      "items": [
+        "Primero persiste (POST), después consulta (GET)",
+        "El await del frontend garantiza ese orden",
+        "Si el POST falla, el formulario no se limpia"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Seguridad",
+      "items": [
+        "INSERT con parámetros preparados (?, ?): sin inyección SQL",
+        "textContent dibuja texto plano, nunca HTML (evita XSS)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Detalles del stack",
+      "items": [
+        "better-sqlite3 es síncrono: cada consulta bloquea hasta terminar",
+        "res.json() convierte y responde en un solo paso"
+      ]
+    }
+  ]
+}
