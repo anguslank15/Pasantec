@@ -152,6 +152,16 @@ curl -X PUT http://localhost:3000/api/productos/1 -H "Content-Type: application/
 curl -X DELETE http://localhost:3000/api/productos/1                        # borrar (204; si el id no existe, 404)
 ```
 
+## Tests
+
+`npm test` corre las **13 pruebas automatizadas** con el corredor nativo de Node (`node --test`): 12 de la API en [`test/api.test.js`](test/api.test.js) — CRUD completo y códigos `400`/`404` — y 1 del seed en [`test/poblar.test.js`](test/poblar.test.js), que verifica que `poblar_base.sql` carga exactamente los 5 productos de ejemplo.
+
+Las pruebas usan una **base temporal** (variable de entorno `DB_PATH` apuntando a un archivo en la carpeta de temporales del sistema): nunca tocan `mi_base_de_datos.db`.
+
+```bash
+npm test
+```
+
 ## Etapas del proyecto (para quien lo continúe)
 
 El proyecto se construyó por etapas; cada una es un commit con su tag de git:

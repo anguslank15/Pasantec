@@ -4,7 +4,7 @@
 // Stack de pruebas:
 //  - node:test: el corredor de pruebas que trae Node de fábrica
 //    (cero dependencias extra). Se ejecuta con `npm test`, que
-//    corre `node --test test/`.
+//    corre `node --test` sobre los archivos test/*.test.js (ver package.json).
 //  - supertest: dispara pedidos HTTP contra la app de Express
 //    directamente, sin levantar el servidor en un puerto real.
 //

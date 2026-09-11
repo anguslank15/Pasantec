@@ -37,7 +37,7 @@ db.exec(`
 // servidor y la base no existía, src/server.js te pregunta si
 // querés poblarla. Esta función lee un archivo .sql completo
 // (utf8) y lo ejecuta de una sola vez con db.exec(), que acepta
-// VARIAS sentencias seguidas: los 5 INSERT de poblar_base.sql y
+// VARIAS sentencias seguidas: el INSERT de los 5 productos de
 // su SELECT final de verificación.
 //
 // ⚠ MISMA ADVERTENCIA que adentro de poblar_base.sql: la tabla

@@ -1,10 +1,11 @@
 -- ============================================================
 -- Script de población (seed) para zz-js01
 --
--- PRECONDICIÓN: levantar el servidor al menos una vez antes de
--- ejecutar este script (node server.js y luego Ctrl+C). El archivo
--- mi_base_de_datos.db y la tabla `productos` los crea server.js
--- automáticamente en el primer arranque.
+-- PRECONDICIÓN: la tabla `productos` debe existir. La crea
+-- src/db.js automáticamente al arrancar el servidor
+-- (node src/server.js). En una instalación limpia ni siquiera
+-- hace falta ejecutar este script a mano: el servidor pregunta
+-- si querés poblar la base y, si aceptás, lo ejecuta por vos.
 --
 -- Formas de ejecutarlo (ver README.md):
 --   con Node:      node -e '...lee poblar_base.sql...'  (comando exacto en README)

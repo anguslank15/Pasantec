@@ -33,9 +33,9 @@ const app = express();
 // Sin esta línea, req.body llegaría undefined.
 app.use(express.json());
 
-// Middleware de archivos estáticos: si un pedido no matchea ninguna
-// ruta de la API, Express busca un archivo con ese nombre dentro de
-// public/ y lo sirve tal cual (GET / sirve index.html automáticamente).
+// Middleware de archivos estáticos: Express busca el archivo pedido
+// dentro de public/ y lo sirve tal cual; si no existe, sigue hacia
+// las rutas de la API (GET / sirve index.html automáticamente).
 // Se apunta a public/ —y no a la raíz del proyecto— para no exponer
 // por HTTP la base de datos, este código ni el package.json.
 // __dirname = ruta absoluta de la carpeta donde está este archivo.

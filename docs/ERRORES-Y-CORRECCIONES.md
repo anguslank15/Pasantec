@@ -134,8 +134,9 @@ Regla de decisión:
 ## Comandos de referencia
 
 ```bash
-node server.js                # levantar el servidor (http://localhost:3000)
-PORT=3100 node server.js      # levantarlo en otro puerto (para pruebas)
+npm test                      # verificación automatizada (13 pruebas, base temporal)
+node src/server.js            # levantar el servidor (http://localhost:3000)
+PORT=3100 node src/server.js  # levantarlo en otro puerto (para pruebas)
 
 # Verificación manual por HTTP
 curl http://localhost:3000/api/productos                                  # listar
