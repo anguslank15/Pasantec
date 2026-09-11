@@ -7,7 +7,7 @@
     "repository": {
       "url": "https://github.com/joriza/Ej-Express-01",
       "provider": "github",
-      "revision": "927e5773a83483a353d5f06e44b450de810faaed"
+      "revision": "2cc3e83ec5cfbda7e078df05716cca47f739e03d"
     },
     "quality_profile": "showcase",
     "views": [
@@ -15,7 +15,7 @@
         "id": "ruta-datos",
         "label": "Ruta de datos",
         "focus": ["browser", "express", "api", "driver", "db"],
-        "note": "El POST del formulario viaja por HTTP hasta la tabla productos en SQLite."
+        "note": "Cada operación del CRUD viaja por HTTP hasta la tabla productos en SQLite."
       },
       {
         "id": "servido-estatico",
@@ -51,7 +51,7 @@
       "type": "backend",
       "label": "Rutas API",
       "sublabel": "/api/productos",
-      "tag": "GET · POST",
+      "tag": "CRUD completo",
       "pos": [460, 300],
       "size": [130, 64]
     },
@@ -90,7 +90,7 @@
     },
     { "id": "enruta", "from": "express", "to": "api", "label": "JSON parseado" },
     { "id": "sql", "from": "api", "to": "driver", "label": "SQL preparado" },
-    { "id": "persiste", "from": "driver", "to": "db", "label": "INSERT · SELECT" }
+    { "id": "persiste", "from": "driver", "to": "db", "label": "INSERT · UPDATE · SELECT · DELETE", "labelDy": 56 }
   ],
   "cards": [
     {
@@ -106,7 +106,8 @@
       "title": "Backend",
       "items": [
         "Express 5 en cadena de middlewares: express.json + express.static",
-        "GET y POST sobre /api/productos"
+        "CRUD completo sobre /api/productos (GET, POST, PUT, DELETE)",
+        "Validación en el servidor: 400 con la lista de errores"
       ]
     },
     {

@@ -50,7 +50,7 @@
       "y": 184,
       "label": "POST /api/productos",
       "variant": "emphasis",
-      "note": "JSON {nombre, precio} · express.json() lo parsea a req.body"
+      "note": "JSON {nombre, precio} · el servidor valida antes de insertar"
     },
     {
       "id": "insert",
@@ -68,9 +68,9 @@
       "from": "express",
       "to": "pagina",
       "y": 280,
-      "label": "200 · {id, nombre, precio}",
+      "label": "201 · {id, nombre, precio}",
       "variant": "return",
-      "note": "guardado ok → formulario.reset()"
+      "note": "guardado ok (201: recurso creado) → formulario.reset()"
     },
     {
       "id": "get",

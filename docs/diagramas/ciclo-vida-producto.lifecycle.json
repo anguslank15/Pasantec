@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Ciclo de vida de un producto (zz-js01)",
+    "output": "docs/diagramas/ciclo-vida-producto.html",
+    "viewBox": [1060, 566],
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "riel-principal",
+        "label": "Riel principal",
+        "focus": ["inexistente", "creado", "actualizado", "borrado", "nuevo_ciclo"],
+        "note": "El recorrido de una fila de productos: nace, se edita, desaparece y el ciclo se repite con un id nuevo."
+      },
+      {
+        "id": "intentos-fallidos",
+        "label": "Intentos fallidos",
+        "focus": ["rechazado", "no_encontrado"],
+        "note": "Los dos errores que puede devolver la API y por qué ninguno modifica la base."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "main", "label": "Etapas del producto" },
+    { "id": "rechazos", "label": "Intentos rechazados" }
+  ],
+  "states": [
+    {
+      "id": "inexistente",
+      "type": "start",
+      "label": "Inexistente",
+      "sublabel": "aún no está en la base",
+      "lane": "main",
+      "col": 0,
+      "step": "01"
+    },
+    {
+      "id": "creado",
+      "type": "active",
+      "label": "Creado",
+      "sublabel": "fila en la tabla productos",
+      "lane": "main",
+      "col": 1,
+      "step": "02",
+      "tag": "201"
+    },
+    {
+      "id": "actualizado",
+      "type": "active",
+      "label": "Actualizado",
+      "sublabel": "misma fila, valores nuevos",
+      "lane": "main",
+      "col": 2,
+      "step": "03",
+      "tag": "200"
+    },
+    {
+      "id": "borrado",
+      "type": "success",
+      "label": "Borrado",
+      "sublabel": "fuera de la base",
+      "lane": "main",
+      "col": 3,
+      "step": "04",
+      "tag": "204"
+    },
+    {
+      "id": "nuevo_ciclo",
+      "type": "neutral",
+      "label": "Nuevo ciclo",
+      "sublabel": "otro producto, otro id",
+      "lane": "main",
+      "col": 4,
+      "step": "05"
+    },
+    {
+      "id": "rechazado",
+      "type": "failure",
+      "label": "Rechazado",
+      "sublabel": "la validación dijo no",
+      "lane": "rechazos",
+      "col": 0,
+      "tag": "400"
+    },
+    {
+      "id": "no_encontrado",
+      "type": "failure",
+      "label": "No encontrado",
+      "sublabel": "ese id no existe",
+      "lane": "rechazos",
+      "col": 1,
+      "tag": "404"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "crear",
+      "from": "inexistente",
+      "to": "creado",
+      "label": "POST → 201",
+      "note": "con el id generado",
+      "variant": "emphasis",
+      "route": "straight",
+      "labelDy": -40
+    },
+    {
+      "id": "editar",
+      "from": "creado",
+      "to": "actualizado",
+      "label": "PUT → 200",
+      "note": "devuelve el producto editado",
+      "route": "straight",
+      "labelDy": -40
+    },
+    {
+      "id": "borrar",
+      "from": "actualizado",
+      "to": "borrado",
+      "label": "DELETE → 204",
+      "note": "sin cuerpo",
+      "route": "straight",
+      "labelDy": -40
+    },
+    {
+      "id": "siguiente",
+      "from": "borrado",
+      "to": "nuevo_ciclo",
+      "label": "POST otra vez",
+      "note": "el id no se recicla",
+      "route": "straight",
+      "labelDy": -40
+    },
+    {
+      "id": "datos-invalidos",
+      "from": "actualizado",
+      "to": "rechazado",
+      "label": "datos inválidos → 400",
+      "note": "mismas reglas al crear (POST)",
+      "variant": "dashed",
+      "labelAt": [230, 233]
+    },
+    {
+      "id": "reintentar",
+      "from": "rechazado",
+      "to": "actualizado",
+      "label": "reintentar",
+      "variant": "dashed",
+      "labelAt": [482, 245]
+    },
+    {
+      "id": "id-fantasma",
+      "from": "borrado",
+      "to": "no_encontrado",
+      "label": "repetido → 404",
+      "note": "ese id ya no existe",
+      "variant": "dashed",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "El riel principal",
+      "items": [
+        "POST crea la fila y responde 201 con el id",
+        "PUT reemplaza los datos y responde 200",
+        "DELETE la saca y responde 204 sin cuerpo"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Los dos rechazos",
+      "items": [
+        "400: los datos no cumplen las reglas (al crear o editar)",
+        "404: el id no existe — también si ya fue borrado",
+        "Ninguno altera la base: solo informan"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Para probar a mano",
+      "items": [
+        "Borrá dos veces el mismo producto: la segunda da 404",
+        "Después de borrar, cargá otro: el id NO se recicla",
+        "Precio 0 por curl: llega el 400 con la lista de errores"
+      ]
+    }
+  ]
+}
