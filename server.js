@@ -47,9 +47,48 @@ db.exec(`
     nombre TEXT NOT NULL,                -- texto obligatorio
     precio REAL NOT NULL                 -- número con decimales
   )
-`);
+    `);
+    
+    // ============================================================
+    // Validación de datos (etapa 5)
+    //
+    // Valida el body de un producto contra las reglas de negocio.
+    // Devuelve un array con TODOS los problemas encontrados (array
+    // vacío = producto válido): así quien consume la API corrige
+    // todo de una vez, no de a un error por intento.
+    // ============================================================
+    function validarProducto(body) {
+      // Si el pedido llegó sin body, req.body puede ser undefined:
+      // lo reemplazamos por un objeto vacío para no reventar acá
+      // (un body vacío simplemente no valida nada).
+      const datos = body || {};
+      const errores = [];
 
-// GET /api/productos → devuelve todos los productos como JSON.
+      // --- nombre ---
+      // typeof revisa el TIPO primero: si llega un número o un objeto,
+      // no tiene sentido medir el largo. trim() saca espacios de los
+      // extremos, así "   " cuenta como vacío.
+      if (typeof datos.nombre !== "string" || datos.nombre.trim() === "") {
+        errores.push("El nombre es obligatorio y debe ser texto.");
+      } else if (datos.nombre.trim().length > 100) {
+        errores.push("El nombre no puede superar los 100 caracteres.");
+      }
+
+      // --- precio ---
+      // Number.isFinite acepta 10 y 10.5; rechaza NaN, "10" (string),
+      // Infinity y objetos. TRAMPA CLÁSICA: no usar !precio, porque
+      // además de NaN rechazaría cualquier valor falsy sin distinguir.
+      if (!Number.isFinite(datos.precio)) {
+        errores.push("El precio es obligatorio y debe ser un número.");
+      } else if (datos.precio < 0.01) {
+        // Regla de negocio: nada gratis, el mínimo es 0.01.
+        errores.push("El precio mínimo permitido es 0.01.");
+      }
+
+      return errores;
+    }
+    
+    // GET /api/productos → devuelve todos los productos como JSON.
 // prepare() compila la consulta una sola vez (eficiente si se repite).
 // El guion bajo en _req indica: "Express me exige este parámetro
 // (el pedido), pero no lo uso en esta ruta".
@@ -67,36 +106,55 @@ app.get("/api/productos", (_req, res) => {
 // formulario alteren el SQL (inyección SQL). Nunca concatenes
 // valores de usuario dentro de un string SQL.
 app.post("/api/productos", (req, res) => {
-  const { nombre, precio } = req.body; // destructuring: extrae campos
+  // 1) Validar SIEMPRE antes de tocar la base. El `required` del
+  // formulario ayuda al usuario, pero el servidor no confía en
+  // nadie: un curl puede saltearse el HTML completo.
+  const errores = validarProducto(req.body);
+  if (errores.length > 0) {
+    // 400 Bad Request: "tu pedido está malformado; corregilo vos".
+    // Es un error del CLIENTE, muy distinto de un 500 (culpa del
+    // servidor) que era lo que pasaba antes con campos faltantes.
+    return res.status(400).json({ errores });
+  }
+  // Ya validado: trim() normaliza el nombre (sin espacios sobrantes).
+  const nombre = req.body.nombre.trim();
+  const precio = req.body.precio;
   const insert = db.prepare(
     "INSERT INTO productos (nombre, precio) VALUES (?, ?)",
   );
   // run() ejecuta el INSERT; lastInsertRowid trae el id generado.
   const resultado = insert.run(nombre, precio);
-  res.json({ id: resultado.lastInsertRowid, nombre, precio });
+  // 201 Created: convención REST para "se creó un recurso nuevo".
+  res.status(201).json({ id: resultado.lastInsertRowid, nombre, precio });
 });
-    
+
 // PUT /api/productos/:id → reemplaza los datos del producto con ese id.
 // En REST, PUT significa "actualizar el recurso completo" (PATCH sería
 // actualizar una parte). Usa el mismo parámetro de ruta que DELETE.
 app.put("/api/productos/:id", (req, res) => {
-  const { nombre, precio } = req.body; // los nuevos valores vienen en el body
+  // Mismas reglas para crear y editar: una sola función, dos rutas.
+  const errores = validarProducto(req.body);
+  if (errores.length > 0) {
+return res.status(400).json({ errores });
+  }
+  const nombre = req.body.nombre.trim(); // ya validado y normalizado
+  const precio = req.body.precio;
   // UPDATE ... WHERE id = ?: cambia SOLO las filas que matcheen el id.
   // Sin WHERE se actualizarían TODAS las filas: error clásico y caro.
   const actualizar = db.prepare(
-"UPDATE productos SET nombre = ?, precio = ? WHERE id = ?",
+    "UPDATE productos SET nombre = ?, precio = ? WHERE id = ?",
   );
   // Tres valores, tres "?": en el mismo orden que aparecen en el SQL.
   const resultado = actualizar.run(nombre, precio, req.params.id);
   // Mismo patrón changes que en DELETE: 0 significa "ese id no existe".
   if (resultado.changes === 0) {
-return res.status(404).json({ error: "Producto no encontrado" });
+    return res.status(404).json({ error: "Producto no encontrado" });
   }
   // Devolvemos cómo quedó el producto. Number(): req.params.id es string,
   // lo convertimos para que el JSON muestre el id como número.
   res.json({ id: Number(req.params.id), nombre, precio });
 });
-    
+
 // DELETE /api/productos/:id → borra el producto con ese id.
 // ":id" es un PARÁMETRO DE RUTA: viaja en la URL (no en el body) y
 // Express lo deja disponible en req.params.id. Ojo: llega como STRING
