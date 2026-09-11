@@ -1,10 +1,10 @@
 # zz-js01 — CRUD de productos (Express + SQLite)
 
-Mini aplicación web de aprendizaje: un formulario para **crear** productos y una tabla que lista los **guardados**, con backend Node.js + Express y base de datos SQLite en un solo archivo.
+Mini aplicación web de aprendizaje: un **CRUD completo** de productos — formulario para **crear y editar**, tabla que **lista** y **borra** — con backend Node.js + Express y base de datos SQLite en un solo archivo.
 
 ```
 [ Navegador ]  --HTTP-->  [ Express (server.js) ]  --SQL-->  [ SQLite (mi_base_de_datos.db) ]
-   public/                 /api/productos (GET/POST)            archivo en disco
+   public/            /api/productos (GET·POST·PUT·DELETE)      archivo en disco
 ```
 
 - Sin frameworks frontend: HTML + CSS + JavaScript puro, con `fetch()`.
@@ -103,13 +103,29 @@ sqlite3 mi_base_de_datos.db ".read poblar_base.sql"
 | `package.json` / `package-lock.json` | Dependencias del proyecto (qué instala `npm install`). |
 | `mi_base_de_datos.db` | La base SQLite. **No se versiona** (`.gitignore`); se crea al arrancar. |
 | `docs/ERRORES-Y-CORRECCIONES.md` | Guía de repaso: errores del proyecto, correcciones y método de depuración. |
+| `docs/diagramas/` | Diagramas interactivos (archify): arquitectura, secuencia del ciclo POST→GET y ciclo de vida de un producto. Abrir los `.html` en el navegador. |
 
 ## API
 
-| Método y ruta | Qué hace | Body (JSON) |
-|---------------|----------|-------------|
-| `GET /api/productos` | Lista todos los productos | — |
-| `POST /api/productos` | Crea un producto | `{ "nombre": "string", "precio": número }` |
+| Método y ruta | Qué hace | Body (JSON) | Respuestas |
+|---------------|----------|-------------|------------|
+| `GET /api/productos` | Lista todos los productos | — | `200` |
+| `POST /api/productos` | Crea un producto | `{ "nombre": "string", "precio": número }` | `201` · `400` si los datos no cumplen las reglas |
+| `PUT /api/productos/:id` | Reemplaza un producto existente | ídem | `200` · `400` datos inválidos · `404` id inexistente |
+| `DELETE /api/productos/:id` | Borra un producto | — | `204` · `404` id inexistente |
+
+**Reglas de validación** (las aplica el servidor a POST y PUT — el `required` del formulario es ayuda visual, la última palabra la tiene el backend):
+
+- `nombre`: texto obligatorio, se recortan espacios, máximo **100 caracteres**.
+- `precio`: número finito, mínimo **0.01** (no se acepta 0 ni negativos).
+
+Con datos inválidos la API responde `400` con **todos** los errores juntos:
+
+```json
+{ "errores": ["El nombre es obligatorio y debe ser texto.", "El precio mínimo permitido es 0.01."] }
+```
+
+El ciclo de vida completo de un producto (estados, verbor HTTP y códigos de respuesta) está diagramado en [`docs/diagramas/ciclo-vida-producto.html`](docs/diagramas/ciclo-vida-producto.html).
 
 ## Comandos útiles
 
@@ -120,6 +136,27 @@ PORT=3100 node server.js       # mismo servidor en otro puerto
 # Pruebas manuales de la API (Git Bash / PowerShell)
 curl http://localhost:3000/api/productos                                   # listar
 curl -X POST http://localhost:3000/api/productos -H "Content-Type: application/json" -d "{\"nombre\":\"Prueba\",\"precio\":9.99}"   # crear
+curl -X PUT http://localhost:3000/api/productos/1 -H "Content-Type: application/json" -d "{\"nombre\":\"Editado\",\"precio\":12.5}"   # editar
+curl -X DELETE http://localhost:3000/api/productos/1                        # borrar (204; si el id no existe, 404)
+```
+
+## Etapas del proyecto (para quien lo continúe)
+
+El proyecto se construyó por etapas; cada una es un commit con su tag de git:
+
+| Etapa | Tag | Qué agregó |
+|-------|-----|------------|
+| 1-2 | — | Crear y listar (CR), con los bugs iniciales documentados en [`docs/ERRORES-Y-CORRECCIONES.md`](docs/ERRORES-Y-CORRECCIONES.md) |
+| 3 | `etapa-3-delete` | Borrar: `DELETE /:id` + botón Borrar con confirmación |
+| 4 | `etapa-4-update` | Editar: `PUT /:id` + modo edición del formulario |
+| 5 | `etapa-5-validacion` | Validación en el servidor (`400`) + `201` en POST |
+
+Para ver el proyecto tal como estaba en una etapa (solo lectura y pruebas):
+
+```bash
+git switch --detach etapa-3-delete   # viajar a esa etapa
+node server.js                        # probar la app de ese momento
+git switch main                       # volver al presente
 ```
 
 ## Problemas frecuentes
