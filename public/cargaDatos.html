@@ -4,25 +4,78 @@
   <button type="submit">Guardar</button>
 </form>
 
+<h2>Productos guardados</h2>
+<table>
+  <thead>
+    <tr><th>ID</th><th>Nombre</th><th>Precio</th></tr>
+  </thead>
+  <tbody id="lista-productos"></tbody>
+</table>
+
+<style>
+  form { margin-bottom: 16px; font-family: sans-serif; }
+  table { border-collapse: collapse; font-family: sans-serif; }
+  th, td { border: 1px solid #ccc; padding: 6px 12px; text-align: left; }
+  th { background: #f0f0f0; }
+</style>
+
 <script>
-  document.getElementById('formulario-producto').addEventListener('submit', (evento) => {
+  const formulario = document.getElementById('formulario-producto');
+  const tbody = document.getElementById('lista-productos');
+
+  formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
 
     const nombre = document.getElementById('nombre').value;
     const precio = parseFloat(document.getElementById('precio').value);
 
-    guardarProducto(nombre, precio);
-    evento.target.reset();
+    const guardado = await guardarProducto(nombre, precio);
+    if (guardado) {
+      formulario.reset();
+      // Ciclo POST -> GET: después de guardar, refresca la lista
+      await cargarProductos();
+    }
   });
 
-  // Envía el producto al backend vía POST y muestra el id generado
+  // Envía el producto al backend vía POST; devuelve true si salió bien
   async function guardarProducto(nombre, precio) {
-    const respuesta = await fetch('/api/productos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre, precio })
-    });
-    const datos = await respuesta.json();
-    console.log('Guardado con id:', datos.id);
+    try {
+      const respuesta = await fetch('/api/productos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, precio })
+      });
+      if (!respuesta.ok) {
+        console.error('El servidor rechazó el guardado:', respuesta.status);
+        return false;
+      }
+      const datos = await respuesta.json();
+      console.log('Guardado con id:', datos.id);
+      return true;
+    } catch (error) {
+      console.error('No se pudo contactar al servidor:', error);
+      return false;
+    }
   }
+
+  // Trae los productos del backend vía GET y arma la tabla
+  async function cargarProductos() {
+    const respuesta = await fetch('/api/productos');
+    const productos = await respuesta.json();
+
+    tbody.innerHTML = '';
+    for (const producto of productos) {
+      const fila = document.createElement('tr');
+      const valores = [producto.id, producto.nombre, `$ ${Number(producto.precio).toFixed(2)}`];
+      for (const valor of valores) {
+        const celda = document.createElement('td');
+        celda.textContent = valor; // textContent: nunca interpreta HTML
+        fila.appendChild(celda);
+      }
+      tbody.appendChild(fila);
+    }
+  }
+
+  // Carga inicial: mostrar lo que ya hay en la base al abrir la página
+  cargarProductos();
 </script>
