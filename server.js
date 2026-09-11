@@ -3,6 +3,13 @@
 //
 // Stack: Node.js + Express 5 + better-sqlite3 (SQLite)
 //
+// Mapa de la API (todas las rutas bajo /api/productos):
+//   GET    /api/productos      → lista todos                  (200)
+//   POST   /api/productos      → crea uno; valida los datos   (201)
+//   PUT    /api/productos/:id  → reemplaza uno; valida datos  (200)
+//   DELETE /api/productos/:id  → borra uno                    (204)
+//   Errores posibles: 400 (datos inválidos) · 404 (id inexistente)
+//
 // Para quien empieza:
 //  - require(): importa un módulo (librería) en CommonJS.
 //  - Express: framework web; organiza el servidor como una cadena
@@ -48,47 +55,47 @@ db.exec(`
     precio REAL NOT NULL                 -- número con decimales
   )
     `);
-    
-    // ============================================================
-    // Validación de datos (etapa 5)
-    //
-    // Valida el body de un producto contra las reglas de negocio.
-    // Devuelve un array con TODOS los problemas encontrados (array
-    // vacío = producto válido): así quien consume la API corrige
-    // todo de una vez, no de a un error por intento.
-    // ============================================================
-    function validarProducto(body) {
-      // Si el pedido llegó sin body, req.body puede ser undefined:
-      // lo reemplazamos por un objeto vacío para no reventar acá
-      // (un body vacío simplemente no valida nada).
-      const datos = body || {};
-      const errores = [];
 
-      // --- nombre ---
-      // typeof revisa el TIPO primero: si llega un número o un objeto,
-      // no tiene sentido medir el largo. trim() saca espacios de los
-      // extremos, así "   " cuenta como vacío.
-      if (typeof datos.nombre !== "string" || datos.nombre.trim() === "") {
-        errores.push("El nombre es obligatorio y debe ser texto.");
-      } else if (datos.nombre.trim().length > 100) {
-        errores.push("El nombre no puede superar los 100 caracteres.");
-      }
+// ============================================================
+// Validación de datos (etapa 5)
+//
+// Valida el body de un producto contra las reglas de negocio.
+// Devuelve un array con TODOS los problemas encontrados (array
+// vacío = producto válido): así quien consume la API corrige
+// todo de una vez, no de a un error por intento.
+// ============================================================
+function validarProducto(body) {
+  // Si el pedido llegó sin body, req.body puede ser undefined:
+  // lo reemplazamos por un objeto vacío para no reventar acá
+  // (un body vacío simplemente no valida nada).
+  const datos = body || {};
+  const errores = [];
 
-      // --- precio ---
-      // Number.isFinite acepta 10 y 10.5; rechaza NaN, "10" (string),
-      // Infinity y objetos. TRAMPA CLÁSICA: no usar !precio, porque
-      // además de NaN rechazaría cualquier valor falsy sin distinguir.
-      if (!Number.isFinite(datos.precio)) {
-        errores.push("El precio es obligatorio y debe ser un número.");
-      } else if (datos.precio < 0.01) {
-        // Regla de negocio: nada gratis, el mínimo es 0.01.
-        errores.push("El precio mínimo permitido es 0.01.");
-      }
+  // --- nombre ---
+  // typeof revisa el TIPO primero: si llega un número o un objeto,
+  // no tiene sentido medir el largo. trim() saca espacios de los
+  // extremos, así "   " cuenta como vacío.
+  if (typeof datos.nombre !== "string" || datos.nombre.trim() === "") {
+    errores.push("El nombre es obligatorio y debe ser texto.");
+  } else if (datos.nombre.trim().length > 100) {
+    errores.push("El nombre no puede superar los 100 caracteres.");
+  }
 
-      return errores;
-    }
-    
-    // GET /api/productos → devuelve todos los productos como JSON.
+  // --- precio ---
+  // Number.isFinite acepta 10 y 10.5; rechaza NaN, "10" (string),
+  // Infinity y objetos. TRAMPA CLÁSICA: no usar !precio, porque
+  // además de NaN rechazaría cualquier valor falsy sin distinguir.
+  if (!Number.isFinite(datos.precio)) {
+    errores.push("El precio es obligatorio y debe ser un número.");
+  } else if (datos.precio < 0.01) {
+    // Regla de negocio: nada gratis, el mínimo es 0.01.
+    errores.push("El precio mínimo permitido es 0.01.");
+  }
+
+  return errores;
+}
+
+// GET /api/productos → devuelve todos los productos como JSON.
 // prepare() compila la consulta una sola vez (eficiente si se repite).
 // El guion bajo en _req indica: "Express me exige este parámetro
 // (el pedido), pero no lo uso en esta ruta".
@@ -135,7 +142,7 @@ app.put("/api/productos/:id", (req, res) => {
   // Mismas reglas para crear y editar: una sola función, dos rutas.
   const errores = validarProducto(req.body);
   if (errores.length > 0) {
-return res.status(400).json({ errores });
+    return res.status(400).json({ errores });
   }
   const nombre = req.body.nombre.trim(); // ya validado y normalizado
   const precio = req.body.precio;
