@@ -12,5 +12,17 @@
     const precio = parseFloat(document.getElementById('precio').value);
 
     guardarProducto(nombre, precio);
+    evento.target.reset();
   });
+
+  // Envía el producto al backend vía POST y muestra el id generado
+  async function guardarProducto(nombre, precio) {
+    const respuesta = await fetch('/api/productos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, precio })
+    });
+    const datos = await respuesta.json();
+    console.log('Guardado con id:', datos.id);
+  }
 </script>
