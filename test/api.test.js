@@ -22,6 +22,8 @@ const fs = require("fs"); // para borrar la base temporal al final
 // temporal con nombre único (Date.now() evita colisiones entre
 // corridas del mismo test o de dos terminales a la vez).
 process.env.DB_PATH = path.join(os.tmpdir(), `zz-js01-test-${Date.now()}.db`);
+// LOG_REQUESTS=off: silencia el logger de pedidos (etapa 9) y deja limpia la salida de npm test.
+process.env.LOG_REQUESTS = "off";
 
 const { test, after } = require("node:test");
 const assert = require("node:assert");

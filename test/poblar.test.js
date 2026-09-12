@@ -24,6 +24,8 @@ process.env.DB_PATH = path.join(
   os.tmpdir(),
   `zz-js01-poblar-test-${Date.now()}.db`,
 );
+// LOG_REQUESTS=off: silencia el logger de pedidos (etapa 9) y deja limpia la salida de npm test.
+process.env.LOG_REQUESTS = "off";
 
 const { test, after } = require("node:test");
 const assert = require("node:assert");

@@ -97,6 +97,8 @@ after(() => {
 
 ¿Y qué pasa con `test/poblar.test.js`, que define su propio `DB_PATH`? No hay conflicto: `node --test` ejecuta **cada archivo de test en su propio proceso**, así que cada uno setea su variable de entorno en su propio mundo. (El prefijo distinto del archivo temporal — `zz-js01-poblar-test-` — es por prolijidad, no por necesidad.)
 
+Hay una segunda variable en el mismo bloque, con el mismo espíritu: **`LOG_REQUESTS=off`**. Desde la etapa 9 la app trae un logger que narra cada pedido en la consola del servidor (`→ GET /api/productos`, `← 200`); si los tests no lo silenciaran, esos renglones ensuciarían la salida de `npm test`. Por eso ambos archivos de test definen `process.env.LOG_REQUESTS = "off"` antes de requerir la app — mismo patrón de siempre: variable de entorno que se lee al requerir, definida antes del require.
+
 ### `test/api.test.js` — los 12 casos de la API
 
 Los 12 casos forman dos grupos: la **cadena feliz del CRUD** (1 a 6) y las **validaciones** (7 a 12).

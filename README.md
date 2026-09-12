@@ -145,6 +145,8 @@ npm test                       # corre las pruebas de la API (node --test)
 node src/server.js             # servidor en el puerto 3000
 PORT=3100 node src/server.js   # mismo servidor en otro puerto
 
+# Mientras corre, la consola del servidor narra cada pedido con su código de respuesta (→ GET /api/productos · ← 200). LOG_REQUESTS=off lo silencia
+
 # Pruebas manuales de la API (Git Bash / PowerShell)
 curl http://localhost:3000/api/productos                                   # listar
 curl -X POST http://localhost:3000/api/productos -H "Content-Type: application/json" -d "{\"nombre\":\"Prueba\",\"precio\":9.99}"   # crear
@@ -177,6 +179,7 @@ El proyecto se construyó por etapas; cada una es un commit con su tag de git:
 | 6 | `etapa-6-rename` | Frontend renombrado a `public/index.html`, servido en la raíz (`/`) |
 | 7 | `etapa-7-src-tests` | Refactor a `src/` modular + tests automatizados (`npm test`) |
 | 8 | `etapa-8-poblar` | Instalación limpia: pregunta si poblar la base con `poblar_base.sql` |
+| 9 | `etapa-9-logger` | La consola del servidor muestra cada pedido y su código de respuesta (`LOG_REQUESTS=off` para silenciar) |
 
 Para ver el proyecto tal como estaba en una etapa (solo lectura y pruebas):
 

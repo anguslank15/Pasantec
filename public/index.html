@@ -105,6 +105,11 @@
         // fetch solo envía texto: el objeto debe serializarse
         body: JSON.stringify({ nombre, precio })
       });
+      // Etapa 9: el código de respuesta queda visible en la consola
+      // del navegador (F12 → Consola) en cada interacción: así se
+      // puede comparar el código esperado de la API (200, 201, 400,
+      // 404...) con el que realmente llegó.
+      console.log(`← Código de respuesta: ${respuesta.status}`);
       // respuesta.ok significa código 2xx. OJO: fetch NO lanza
       // excepción ante un 404/500; los códigos de error HTTP hay
       // que revisarlos a mano, como acá.
@@ -159,6 +164,7 @@
           const respuesta = await fetch(`/api/productos/${id}`, {
             method: 'DELETE'
           });
+          console.log(`← Código de respuesta: ${respuesta.status}`);
           // Igual que en guardarProducto: fetch no lanza excepción ante
           // 404/500; hay que revisar respuesta.ok a mano.
           if (!respuesta.ok) {
@@ -179,6 +185,7 @@
   // Enfoque simple y suficiente para esta cantidad de datos.
   async function cargarProductos() {
     const respuesta = await fetch('/api/productos'); // GET es el default
+    console.log(`← Código de respuesta: ${respuesta.status}`);
     const productos = await respuesta.json(); // JSON -> array de objetos
     // Se guarda la lista: editarProducto() la usa para rellenar el
     // formulario con los valores actuales del producto elegido.

@@ -10,6 +10,10 @@
 //   DELETE /api/productos/:id  → borra uno                    (204)
 //   Errores posibles: 400 (datos inválidos) · 404 (id inexistente)
 //
+//   La consola del servidor narra cada pedido: → método y URL al
+//   entrar, ← código de respuesta al terminar (LOG_REQUESTS=off
+//   la silencia; ver el middleware de logging más abajo).
+//
 // Para quien empieza:
 //  - require(): importa un módulo (librería) en CommonJS.
 //  - Express: framework web; organiza el servidor como una cadena
@@ -27,6 +31,40 @@ const productosRouter = require("./routes/productos");
 // cadena de middlewares: funciones que se ejecutan en orden, de
 // arriba hacia abajo, hasta que algo responda.
 const app = express();
+
+// ------------------------------------------------------------
+// Middleware de logging de pedidos (etapa 9): narra cada pedido
+// en la consola del servidor, por ejemplo:
+//   → GET /api/productos
+//   ← 200
+// ------------------------------------------------------------
+
+// Interruptor por variable de entorno: el MISMO patrón de
+// configuración que usa DB_PATH en src/db.js (configurar sin
+// tocar código). LOG_REQUESTS=off silencia el logger — la suite
+// de tests lo usa para que la salida de npm test quede limpia —.
+// Se lee UNA sola vez, al requerir este archivo, igual que DB_PATH.
+const LOG = process.env.LOG_REQUESTS !== "off";
+
+// ¿Por qué PRIMERO en la cadena? Los middlewares corren en orden
+// de declaración: poniéndolo antes de express.json, del static y
+// de las rutas, este logger ve TODOS los pedidos que entran (los
+// demás no tienen que saber que existe). Más abajo, en cambio,
+// solo nararía los pedidos que llegaran hasta él.
+app.use((req, res, next) => {
+  if (LOG) {
+    // Al ENTRAR el pedido se anuncia con su método y su URL.
+    console.log(`→ ${req.method} ${req.url}`);
+    // El código de respuesta (res.statusCode) todavía NO existe
+    // acá: se decide más adelante, cuando una ruta u otro
+    // middleware responda. Por eso no se loguea ya, sino cuando
+    // la respuesta TERMINA: el evento "finish" de res se dispara
+    // recién entonces, y solo ahí statusCode tiene su valor final.
+    res.on("finish", () => console.log(`← ${res.statusCode}`));
+  }
+  // next() pasa el pedido al siguiente middleware de la cadena.
+  next();
+});
 
 // Middleware: interpreta el body JSON de los pedidos POST/PUT y lo
 // deja disponible en req.body como objeto JavaScript.

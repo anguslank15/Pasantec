@@ -21,7 +21,8 @@ La tabla resumen de etapas está en el [README](../README.md#etapas-del-proyecto
 | 6 | `etapa-6-rename` (`fd06ad6`) | Frontend renombrado a `public/index.html`, servido en la raíz `/` | `node server.js` → `http://localhost:3000/` ⚠ **URL nueva** |
 | 7 | `etapa-7-src-tests` (`4910ea8`) | Refactor a `src/` modular + `npm test` (12 casos) | `node src/server.js` → `http://localhost:3000/` ⚠ **comando nuevo** |
 | 8 | `etapa-8-poblar` (`0f993ef`) | Pregunta si poblar la base en instalación limpia (`npm test` pasa a 13) | `node src/server.js` → `http://localhost:3000/` |
-| Presente | `main` (`b337416` o posterior) | Documentación completa (README, PRUEBAS, ETAPAS, diagramas) | `npm test` (13 pass) + `node src/server.js` |
+| 9 | `etapa-9-logger` | La consola del servidor narra cada pedido con su código de respuesta (`LOG_REQUESTS=off` para silenciar); el navegador también muestra el código por consola | `node src/server.js` → `http://localhost:3000/` (mirar la terminal al interactuar) |
+| Presente | `main` | Documentación completa (README, PRUEBAS, ETAPAS, diagramas) | `npm test` (13 pass) + `node src/server.js` |
 
 Dos detalles que van a saltar en `git log` y conviene aclarar de entrada:
 
@@ -237,6 +238,31 @@ Abrir <http://localhost:3000/>.
 - El prompt del arranque solo aparece si la base **no existe**. En tu viaje **no borres tu `mi_base_de_datos.db`** para verlo: es tu dato real. Para verlo en acción, lo correcto es probarlo en una copia fresca del proyecto (o una máquina nueva), tal como cuenta el [README](../README.md#instalaci%C3%B3n-desde-cero-en-un-equipo-nuevo). Leer `src/server.js` de esta etapa también muestra la lógica completa de la pregunta.
 
 **Qué NO existía todavía:** la documentación final del presente (guía de tests, esta guía).
+
+### Etapa 9 — tag `etapa-9-logger`: la consola narra cada pedido
+
+**Qué agrega:** visibilidad. Desde esta etapa, **la consola del servidor narra cada pedido** con su método, su URL y su código de respuesta:
+
+```text
+→ GET /api/productos
+← 200
+→ DELETE /api/productos/999999
+← 404
+```
+
+Lo hace un middleware de logging puesto **primero en la cadena** de `src/app.js`: ve todos los pedidos que entran, y anota el código recién cuando la respuesta termina (el evento `finish` de `res`). Y el navegador también participa: cada `fetch` de `public/index.html` imprime `← Código de respuesta: ...` en la consola del navegador (F12), así que los códigos esperados de la API se pueden comparar con los reales en los dos extremos. Sin dependencias nuevas: es `console.log` y eventos, nada más.
+
+**Cómo verlo:**
+
+```bash
+npm start                # o: node src/server.js
+```
+
+Interactuá con la app (guardar, editar, borrar) y mirá **la terminal del servidor**: cada pedido deja su par `→ ...` / `← código`. ¿Mucho ruido? Se apaga sin tocar código: `LOG_REQUESTS=off npm start` (la misma técnica de variable de entorno que el proyecto ya enseña con `DB_PATH`). Y la suite lo apaga sola: los dos archivos de `test/` definen `process.env.LOG_REQUESTS = "off"` antes de requerir la app, para que la salida de `npm test` se mantenga limpia.
+
+**Qué NO cambió:** ni las rutas ni las respuestas de la API: es logging, no lógica.
+
+(Una vez etiquetada, la etapa se visita como las anteriores: `git switch --detach etapa-9-logger`.)
 
 ---
 
