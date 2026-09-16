@@ -178,3 +178,31 @@ test("PUT con nombre vacío y precio -1 responde 400 con ambos errores", async (
     "El precio mínimo permitido es 0.01.",
   ]);
 });
+
+// ------------------------------------------------------------
+// Body JSON malformado (caso 13): si el body no se puede parsear
+// como JSON, express.json() lanza un error ANTES de llegar a la
+// ruta. Sin middleware de error propio ese error cae en el
+// handler por defecto de Express, que responde una página HTML:
+// el contrato JSON de la API se rompe justo en un error. Este
+// test lo delata y obliga a tener un handler de errores propio
+// en src/app.js (último en la cadena de middlewares).
+// ------------------------------------------------------------
+
+// 13) POST con JSON malformado → 400 con body JSON (no HTML).
+test("POST con body JSON malformado responde 400 con JSON (no HTML)", async () => {
+  const res = await request(app)
+    .post("/api/productos")
+    .set("Content-Type", "application/json")
+    // JSON cortado a propósito: el parseo falla antes de llegar a la ruta.
+    .send('{"nombre": "Silla", "precio": ');
+  assert.strictEqual(res.status, 400);
+  // El contrato de la API es JSON SIEMPRE, también en los errores:
+  // si respondiera el HTML por defecto de Express, content-type sería text/html.
+  assert.match(res.headers["content-type"], /application\/json/);
+  // Misma forma que los 400 de validación: { errores: [...] }.
+  assert.ok(
+    Array.isArray(res.body.errores),
+    "el body debe traer { errores: [...] } y no HTML",
+  );
+});

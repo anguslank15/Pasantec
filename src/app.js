@@ -86,6 +86,40 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 // y "/:id" se sirven en /api/productos y /api/productos/:id.
 app.use("/api/productos", productosRouter);
 
+// ------------------------------------------------------------
+// Middleware de error (SIEMPRE último en la cadena): Express lo
+// invoca cuando algo lanzó una excepción en un middleware o en
+// una ruta. Se lo reconoce por su firma de CUATRO parámetros:
+// esa firma le dice a Express "yo manejo errores", no "yo atiendo
+// pedidos", y por eso no interfiere con las rutas normales.
+//
+// ¿Por qué hace falta? Si express.json() recibe un body que no
+// es JSON válido, lanza un error antes de llegar a cualquier
+// ruta. Sin este handler, ese error cae en el handler por
+// defecto de Express, que responde una página HTML: el contrato
+// JSON de la API quedaría roto justo cuando el cliente más
+// necesita saber qué salió mal (lo detectó el test 13 de
+// test/api.test.js).
+// ------------------------------------------------------------
+app.use((error, _req, res, _next) => {
+  // body-parser (dentro de express.json) "etiqueta" su error de
+  // parseo con type = "entity.parse.failed": es la manera fiable
+  // de reconocer "el body no era JSON válido" (error del CLIENTE,
+  // 400) y no confundirlo con un problema del servidor (500).
+  if (error.type === "entity.parse.failed") {
+    // Misma forma que los 400 de validación: { errores: [...] }.
+    return res
+      .status(400)
+      .json({ errores: ["El body del pedido no es JSON válido."] });
+  }
+  // Cualquier otro error SÍ es culpa nuestra: 500. Se registra en
+  // la consola (para poder depurar) pero la respuesta NO incluye
+  // detalles internos del error: esa información no debe salir
+  // por HTTP (podría revelar rutas, SQL o versiones).
+  console.error("Error no previsto:", error);
+  return res.status(500).json({ error: "Error interno del servidor" });
+});
+
 // Se exporta la app SIN escuchar puertos: así los tests pueden
 // requerirla (test/api.test.js con supertest) y src/server.js es
 // el único archivo que la arranca con app.listen().
