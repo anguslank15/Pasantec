@@ -114,7 +114,7 @@ sqlite3 mi_base_de_datos.db ".read poblar_base.sql"
 | `package.json` / `package-lock.json` | Dependencias del proyecto (qué instala `npm install`). |
 | `mi_base_de_datos.db` | La base SQLite. **No se versiona** (`.gitignore`); se crea al arrancar. |
 | `docs/ERRORES-Y-CORRECCIONES.md` | Guía de repaso: errores del proyecto, correcciones y método de depuración. |
-| `docs/diagramas/` | Diagramas interactivos (archify): arquitectura, secuencia del ciclo POST→GET y ciclo de vida de un producto. Abrir los `.html` en el navegador. |
+| `docs/y-diagramas/` | Diagramas interactivos (archify): arquitectura, secuencia del ciclo POST→GET y ciclo de vida de un producto. Abrir los `.html` en el navegador. |
 
 ## API
 
@@ -136,7 +136,7 @@ Con datos inválidos la API responde `400` con **todos** los errores juntos:
 { "errores": ["El nombre es obligatorio y debe ser texto.", "El precio mínimo permitido es 0.01."] }
 ```
 
-El ciclo de vida completo de un producto (estados, verbor HTTP y códigos de respuesta) está diagramado en [`docs/diagramas/ciclo-vida-producto.html`](docs/diagramas/ciclo-vida-producto.html).
+El ciclo de vida completo de un producto (estados, verbo HTTP y códigos de respuesta) está diagramado en [`docs/y-diagramas/ciclo-vida-producto.html`](docs/y-diagramas/ciclo-vida-producto.html).
 
 ## Comandos útiles
 

@@ -88,7 +88,7 @@ Cuatro paradas, contadas en orden:
 | Commit | Qué trajo |
 | -------- | ----------- |
 | `e750826` | **Fix de grabación:** `guardarProducto()` definida (hace `fetch` con `POST`), `express.static` montado y el HTML movido a `public/cargaDatos.html`. Por primera vez la app *se abre y guarda*. |
-| `e76d2c3` | **Tabla en vivo:** después de guardar, la lista se recarga sola (`await cargarProductos()`): nace el ciclo **POST → GET** que ves en el [diagrama de secuencia](diagramas/secuencia-zz-js01.html). |
+| `e76d2c3` | **Tabla en vivo:** después de guardar, la lista se recarga sola (`await cargarProductos()`): nace el ciclo **POST → GET** que ves en el [diagrama de secuencia](y-diagramas/secuencia-zz-js01.html). |
 | `ad2a68b` | **Documentación y seed:** `README.md`, `docs/ERRORES-Y-CORRECCIONES.md` y `poblar_base.sql`. Sin cambios en la app. |
 | `927e577` | **Comentarios didácticos** en `server.js` y `cargaDatos.html`. Sin cambios de comportamiento. |
 
@@ -274,7 +274,7 @@ npm test                 # → 13 pass, 0 fail
 node src/server.js       # → Servidor corriendo en http://localhost:3000
 ```
 
-Abrir <http://localhost:3000/>: la app completa — formulario para crear y editar, tabla que lista y borra, validación en el servidor con `400`, `201` en creación, `npm test` con 13 casos — y la documentación al día: [`README.md`](../README.md), [`docs/PRUEBAS.md`](PRUEBAS.md), [`docs/ERRORES-Y-CORRECCIONES.md`](ERRORES-Y-CORRECCIONES.md) y los [diagramas interactivos](diagramas/).
+Abrir <http://localhost:3000/>: la app completa — formulario para crear y editar, tabla que lista y borra, validación en el servidor con `400`, `201` en creación, `npm test` con 13 casos — y la documentación al día: [`README.md`](../README.md), [`docs/PRUEBAS.md`](PRUEBAS.md), [`docs/ERRORES-Y-CORRECCIONES.md`](ERRORES-Y-CORRECCIONES.md) y los [diagramas interactivos](y-diagramas/).
 
 Después de viajar, `git status` debería mostrarte limpio y en `main`. Si aparece algo inesperado, [`docs/ERRORES-Y-CORRECCIONES.md`](ERRORES-Y-CORRECCIONES.md) tiene el método: reproducir, aislar, entender.
 
